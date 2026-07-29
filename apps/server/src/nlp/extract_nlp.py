@@ -21,12 +21,15 @@ CATEGORIES = [
     "Rent", "Insurance", "Subscription", "Others"
 ]
 
+# NOTE: Subscription is placed BEFORE Entertainment to ensure Netflix/Spotify
+# correctly resolve to Subscription when mentioned with the word 'subscription'.
 CATEGORY_KEYWORDS = {
     "Food": ["lunch", "dinner", "breakfast", "swiggy", "zomato", "restaurant", "food", "groceries", "supermarket", "snacks", "coffee", "starbucks", "dominos", "pizza"],
     "Shopping": ["amazon", "flipkart", "clothes", "shoes", "mall", "myntra", "shopping", "electronics", "store"],
     "Travel": ["uber", "ola", "flight", "train", "cab", "auto", "irctc", "bus", "travel", "ticket", "taxi"],
-    "Fuel": ["petrol", "diesel", "fuel", "gas station", "shell", "hp", "iocl"],
-    "Entertainment": ["movie", "cinema", "netflix", "prime", "spotify", "game", "concert", "park"],
+    "Fuel": ["petrol", "diesel", "fuel", "gas station", "shell", "hp", "iocl", "hpcl", "bpcl"],
+    "Subscription": ["subscription", "netflix", "spotify", "youtube premium", "amazon prime", "icloud", "chatgpt", "hotstar"],
+    "Entertainment": ["movie", "cinema", "prime", "game", "concert", "park", "theatre"],
     "Medical": ["doctor", "pharmacy", "medicine", "hospital", "clinic", "apollo", "chemist", "health"],
     "Education": ["tuition", "course", "udemy", "books", "school", "college", "fee", "exam"],
     "Salary": ["salary", "stipend", "paycheck", "wages", "income", "credit", "received"],
@@ -35,7 +38,6 @@ CATEGORY_KEYWORDS = {
     "Bills": ["bill", "mobile recharge", "postpaid", "dth"],
     "Rent": ["rent", "maintenance", "house rent", "pg"],
     "Insurance": ["insurance", "lic", "policy", "premium"],
-    "Subscription": ["netflix", "spotify", "youtube", "amazon prime", "icloud", "chatgpt", "subscription"],
 }
 
 def regex_extract_nlp(text: str) -> Optional[Dict[str, Any]]:
