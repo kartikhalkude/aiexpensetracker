@@ -25,7 +25,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   console.error('[Unhandled Error]:', err);
   res.status(500).json({ error: err.message || 'Internal Server Error' });
 });
-
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+  });
+});
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
     console.log(`🚀 Smart Expense Tracker AI Backend running on port ${PORT}`);

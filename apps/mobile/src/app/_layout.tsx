@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useExpenseStore } from '../store/useExpenseStore';
-
+import "../global.css";
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
