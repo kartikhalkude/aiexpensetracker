@@ -9,7 +9,7 @@ export function parseVoiceExpenseInput(text: string): ParsedExpense {
   let amount: number | null = null;
 
   const currencyMatch = lower.match(
-    /(?:[₹\$]|rs\.?|rupe[e]?s?|inr)?\s*(\d+(?:[.,]\d{1,2})?)\s*(?:rupe[e]?s?|rs|inr|dollars?|bucks?)?/i
+    /(?:₹|rs\.?|rupe[e]?s?|inr)?\s*(\d+(?:[.,]\d{1,2})?)\s*(?:rupe[e]?s?|rs|inr|bucks?)?/i
   );
   if (currencyMatch && currencyMatch[1]) {
     const val = parseFloat(currencyMatch[1].replace(',', '.'));

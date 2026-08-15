@@ -95,13 +95,13 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
               <WobblyInput
-                label="Amount ($) *"
+                label="Amount (₹) *"
                 type="number"
                 step="0.01"
                 required
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                placeholder="25.00"
+                placeholder="250.00"
               />
 
               <WobblySelect

@@ -204,7 +204,7 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
           <div className="space-y-3 bg-white p-3 border-2 border-[#2d2d2d] mt-3">
             <div className="grid grid-cols-2 gap-2">
               <WobblyInput
-                label="Amount (₹/$)"
+                label="Amount (₹)"
                 type="number"
                 step="0.01"
                 required

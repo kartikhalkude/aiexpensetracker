@@ -120,14 +120,14 @@ export const App: React.FC = () => {
         <WobblyCard variant="white" wobblyStyle="wobbly-2" shadow="small" className="p-3 text-left">
           <span className="font-heading text-xs font-bold text-[#2d2d2d]/70">Total Spent</span>
           <p className="text-2xl font-extrabold text-[#ff4d4d] font-heading mt-0.5">
-            ${totalSpent.toFixed(2)}
+            ₹{totalSpent.toFixed(2)}
           </p>
         </WobblyCard>
 
         <WobblyCard variant="postit" wobblyStyle="wobbly-1" shadow="small" className="p-3 text-left">
           <span className="font-heading text-xs font-bold text-[#2d2d2d]/70">Cash Spent 💵</span>
           <p className="text-2xl font-extrabold text-[#2d2d2d] font-heading mt-0.5">
-            ${cashSpent.toFixed(2)}
+            ₹{cashSpent.toFixed(2)}
           </p>
         </WobblyCard>
       </div>
@@ -231,7 +231,7 @@ export const App: React.FC = () => {
                         exp.category === 'income' ? 'text-[#2e7d32]' : 'text-[#2d2d2d]'
                       }`}
                     >
-                      {exp.category === 'income' ? '+' : '-'}${exp.amount.toFixed(2)}
+                      {exp.category === 'income' ? '+' : '-'}₹{exp.amount.toFixed(2)}
                     </span>
 
                     <div className="flex items-center gap-1">
