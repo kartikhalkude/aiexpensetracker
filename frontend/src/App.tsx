@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Download, Mic, Plus, RefreshCw, Search, Trash2 } from 'lucide-react';
 import type { CategoryId, Expense } from './types/expense';
-import { loadExpenses, resetToSampleData, saveExpenses } from './utils/storage';
+import { loadExpenses, clearAllExpenses, saveExpenses } from './utils/storage';
 import { CATEGORIES_META, getCategoryMeta } from './utils/categoryMeta';
 import { exportExpensesToCSV } from './utils/export';
 import { WobblyButton } from './components/common/WobblyButton';
@@ -59,9 +59,9 @@ export const App: React.FC = () => {
   };
 
   const handleReset = () => {
-    if (confirm('Reset to sample expenses?')) {
-      const sample = resetToSampleData();
-      setExpenses(sample);
+    if (confirm('Clear all expenses?')) {
+      clearAllExpenses();
+      setExpenses([]);
     }
   };
 
@@ -89,9 +89,6 @@ export const App: React.FC = () => {
         <h1 className="text-3xl font-extrabold font-heading text-[#2d2d2d]">
           Paper<span className="text-[#ff4d4d]">Spend</span> ✏️
         </h1>
-        <p className="text-sm font-body text-[#2d2d2d]/80">
-          Exceptionally Simple Hand-Drawn Expense Tracker
-        </p>
 
         {/* 2 Primary Add Action Buttons */}
         <div className="grid grid-cols-2 gap-3 mt-4">
@@ -139,7 +136,7 @@ export const App: React.FC = () => {
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`px-3 py-1 text-sm font-heading font-bold rounded-lg border-2 border-[#2d2d2d] shrink-0 cursor-pointer ${
+          className={`px-3 py-1 text-sm font-heading font-bold border-2 border-[#2d2d2d] shrink-0 cursor-pointer ${
             selectedCategory === 'all' ? 'bg-[#ff4d4d] text-white' : 'bg-white text-[#2d2d2d]'
           }`}
         >
@@ -152,7 +149,7 @@ export const App: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1 text-sm font-heading font-bold rounded-lg border-2 border-[#2d2d2d] shrink-0 cursor-pointer ${
+              className={`px-3 py-1 text-sm font-heading font-bold border-2 border-[#2d2d2d] shrink-0 cursor-pointer ${
                 selectedCategory === cat.id ? 'bg-[#2d5da1] text-white' : 'bg-white text-[#2d2d2d]'
               }`}
             >
@@ -197,7 +194,7 @@ export const App: React.FC = () => {
                 <div key={exp.id} className="pt-3 first:pt-0 flex items-start justify-between gap-3">
                   <div className="flex items-start gap-2.5">
                     <div
-                      className="w-10 h-10 rounded-full border-2 border-[#2d2d2d] flex items-center justify-center text-xl shrink-0 mt-0.5"
+                      className="w-10 h-10 border-2 border-[#2d2d2d] flex items-center justify-center text-xl shrink-0 mt-0.5"
                       style={{ backgroundColor: meta.bgColor }}
                     >
                       {meta.emoji}
@@ -206,8 +203,8 @@ export const App: React.FC = () => {
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <StickyTag text={meta.label} color={meta.tagColor} />
-                        <span className="text-xs font-heading font-bold px-2 py-0.5 border border-[#2d2d2d] rounded bg-[#fdfbf7] capitalize">
-                          {exp.paymentMethod === 'cash' ? '💵 Cash Spent' : exp.paymentMethod.replace('_', ' ')}
+                        <span className="text-xs font-heading font-bold px-2 py-0.5 border border-[#2d2d2d] bg-[#fdfbf7] capitalize">
+                          {exp.paymentMethod === 'cash' ? '💵 Cash' : exp.paymentMethod.replace('_', ' ')}
                         </span>
                         {exp.isVoiceLogged && (
                           <span className="text-[10px] font-heading bg-[#ff4d4d] text-white px-1.5 py-0.2 rounded border border-[#2d2d2d]">
@@ -269,7 +266,7 @@ export const App: React.FC = () => {
           onClick={handleReset}
           className="text-xs font-heading font-bold text-[#2d2d2d]/60 hover:text-[#ff4d4d] inline-flex items-center gap-1 cursor-pointer"
         >
-          <RefreshCw className="w-3 h-3" /> Reset Demo Data
+          <RefreshCw className="w-3 h-3" /> Clear All Expenses
         </button>
       </div>
 

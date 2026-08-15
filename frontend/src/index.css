@@ -28,28 +28,28 @@
   }
 }
 
-/* Static Wobbly Border Utilities */
+/* Square Border Utilities — no wobble, sharp corners */
 .wobbly-1 {
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
+  border-radius: 0 !important;
 }
 
 .wobbly-2 {
-  border-radius: 20px 255px 20px 255px / 255px 20px 255px 20px !important;
+  border-radius: 0 !important;
 }
 
 .wobbly-3 {
-  border-radius: 255px 25px 225px 25px / 25px 225px 25px 255px !important;
+  border-radius: 0 !important;
 }
 
 .wobbly-pill {
-  border-radius: 255px 255px 225px 225px / 25px 25px 25px 25px !important;
+  border-radius: 4px !important;
 }
 
 .wobbly-btn {
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px !important;
+  border-radius: 0 !important;
 }
 
-/* Static Hard Offset Shadows */
+/* Hard Offset Shadows */
 .shadow-hand {
   box-shadow: 4px 4px 0px 0px #2d2d2d !important;
 }
@@ -66,7 +66,7 @@
   box-shadow: 0px 0px 0px 0px #2d2d2d !important;
 }
 
-/* Clean Custom Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -78,5 +78,6 @@
 
 ::-webkit-scrollbar-thumb {
   background: #2d2d2d;
-  border-radius: 4px;
+  border-radius: 0;
 }
+

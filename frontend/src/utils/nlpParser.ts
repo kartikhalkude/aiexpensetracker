@@ -5,41 +5,64 @@ export function parseVoiceExpenseInput(text: string): ParsedExpense {
   const lower = normalized.toLowerCase();
 
   // 1. Extract Amount
+  // Handles: ₹500, Rs 200, 45.50, $30, "paanch sau", "tin hazar"
   let amount: number | null = null;
-  const match = lower.match(/(?:[\$\u20B9]|rs\.?|usd)?\s*(\d+(?:\.\d{1,2})?)\s*(?:dollars|bucks|rs|rupees|cents)?/i);
-  if (match && match[1]) {
-    const val = parseFloat(match[1]);
+
+  const currencyMatch = lower.match(
+    /(?:[₹\$]|rs\.?|rupe[e]?s?|inr)?\s*(\d+(?:[.,]\d{1,2})?)\s*(?:rupe[e]?s?|rs|inr|dollars?|bucks?)?/i
+  );
+  if (currencyMatch && currencyMatch[1]) {
+    const val = parseFloat(currencyMatch[1].replace(',', '.'));
     if (!isNaN(val) && val > 0) amount = val;
   }
 
-  // 2. Extract Category
+  // Hindi/common number words fallback
+  const hindiNumbers: Record<string, number> = {
+    ek: 1, do: 2, teen: 3, char: 4, paanch: 5,
+    chhe: 6, saat: 7, aath: 8, nau: 9, das: 10,
+    bis: 20, tees: 30, chalis: 40, pachas: 50,
+    saath: 60, sattar: 70, assi: 80, nabbe: 90,
+    sau: 100, 'ek sau': 100, 'do sau': 200, 'teen sau': 300,
+    'paanch sau': 500, hazar: 1000, 'ek hazar': 1000,
+    'do hazar': 2000, 'teen hazar': 3000, 'paanch hazar': 5000,
+  };
+  if (amount === null) {
+    for (const [word, num] of Object.entries(hindiNumbers)) {
+      if (lower.includes(word)) { amount = num; break; }
+    }
+  }
+
+  // 2. Category — supports English + Hindi/common Indian terms
   let category: CategoryId = 'other';
 
-  if (/petrol|fuel|gas|diesel|gas station|shell|bp/i.test(lower)) {
+  if (/petrol|diesel|fuel|gas station|petrol pump|indane|bharat gas|hp gas|iocl/.test(lower)) {
     category = 'petrol';
-  } else if (/grocery|groceries|supermarket|trader joe|walmart|target|vegetables|milk|fruits|mart/i.test(lower)) {
+  } else if (/grocery|groceries|sabzi|sabji|subzi|kirana|kiryana|ration|dal|chawal|atta|maida|supermarket|bazaar|market|vegetables?|veggies|fruits?/.test(lower)) {
     category = 'grocery';
-  } else if (/food|restaurant|coffee|starbucks|dinner|lunch|breakfast|pizza|burger|cafe|boba|doordash|ubereats|eats/i.test(lower)) {
+  } else if (/food|restaurant|dhaba|hotel|khana|khane|lunch|dinner|breakfast|nashta|nasta|chai|tea|coffee|pizza|burger|biryani|thali|swiggy|zomato|cafe|fast food|snack/.test(lower)) {
     category = 'food';
-  } else if (/bill|electricity|water|internet|wifi|phone|rent|utility/i.test(lower)) {
+  } else if (/bill|bijli|electricity|light bill|water bill|internet|wifi|broadband|gas bill|rent|mobile bill|phone bill|recharge|bijlee/.test(lower)) {
     category = 'bills';
-  } else if (/shop|clothes|shoes|amazon|ebay|electronics|order/i.test(lower)) {
+  } else if (/shop|shopping|clothes|kapde|jute|shoes|amazon|flipkart|meesho|myntra|mall|market|purchase/.test(lower)) {
     category = 'shopping';
-  } else if (/doctor|pharmacy|medicine|hospital|gym|health/i.test(lower)) {
+  } else if (/doctor|davai|dawa|medicine|pharmacy|chemist|hospital|clinic|gym|health|medical|tablet|injection/.test(lower)) {
     category = 'health';
-  } else if (/salary|paycheck|income|freelance|bonus|stipend/i.test(lower)) {
+  } else if (/salary|paycheck|income|freelance|bonus|stipend|payment received|paisa aaya|paise mile|mazdoori|fees received/.test(lower)) {
     category = 'income';
   }
 
-  // 3. Extract Payment Method
+  // 3. Payment Method — English + Hindi/UPI terms
   let paymentMethod: PaymentMethod = 'cash';
-  if (/card|credit|debit|visa|mastercard/i.test(lower)) {
-    paymentMethod = 'credit_card';
-  } else if (/upi|gpay|phonepe|paytm/i.test(lower)) {
+
+  if (/upi|gpay|google pay|phonepe|phone pe|paytm|bhim|neft|imps|rtgs/.test(lower)) {
     paymentMethod = 'upi';
-  } else if (/online|paypal/i.test(lower)) {
+  } else if (/credit card|credit/.test(lower)) {
+    paymentMethod = 'credit_card';
+  } else if (/debit card|debit|atm card/.test(lower)) {
+    paymentMethod = 'debit_card';
+  } else if (/online|net banking|netbanking/.test(lower)) {
     paymentMethod = 'online';
-  } else if (/cash/i.test(lower)) {
+  } else if (/cash|nakit|nakad|naqd|naqdh/.test(lower)) {
     paymentMethod = 'cash';
   }
 

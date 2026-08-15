@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Check, Mic, MicOff, Volume2, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Check, Mic, MicOff, X } from 'lucide-react';
 import type { CategoryId, Expense, PaymentMethod } from '../types/expense';
 import { parseVoiceExpenseInput } from '../utils/nlpParser';
 import { CATEGORIES_META } from '../utils/categoryMeta';
+import { INDIAN_LANGUAGES } from '../utils/languages';
 import { WobblyButton } from './common/WobblyButton';
 import { WobblyCard } from './common/WobblyCard';
 import { WobblyInput, WobblySelect, WobblyTextArea } from './common/WobblyInput';
@@ -14,13 +15,6 @@ interface VoiceLoggerModalProps {
   onAddExpense: (expense: Omit<Expense, 'id' | 'createdAt'>) => void;
 }
 
-const SAMPLE_PROMPTS = [
-  'Spent $45 cash on groceries at supermarket',
-  'Paid $28.50 for petrol refill',
-  'Spent $15 cash on lunch food at cafe',
-  'Paid $95 online for electricity bill',
-];
-
 export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
   isOpen,
   onClose,
@@ -28,7 +22,8 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
 }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [recognition, setRecognition] = useState<any>(null);
+  const [selectedLang, setSelectedLang] = useState('en-IN');
+  const recognitionRef = useRef<any>(null);
 
   // Editable fields
   const [amount, setAmount] = useState<string>('');
@@ -37,30 +32,51 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
   const [description, setDescription] = useState<string>('');
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
+  // Rebuild recognition whenever language changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recog = new SpeechRecognition();
-        recog.continuous = false;
-        recog.interimResults = true;
+    if (typeof window === 'undefined') return;
 
-        recog.onresult = (event: any) => {
-          let current = '';
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            current += event.results[i][0].transcript;
-          }
-          setTranscript(current);
-          handleParseText(current);
-        };
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
 
-        recog.onend = () => setIsListening(false);
-        recog.onerror = () => setIsListening(false);
-        setRecognition(recog);
-      }
+    // Stop any active session before rebuilding
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
     }
-  }, []);
+
+    const recog = new SpeechRecognition();
+    recog.continuous = false;
+    recog.interimResults = true;
+    recog.lang = selectedLang;
+
+    recog.onresult = (event: any) => {
+      let current = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        current += event.results[i][0].transcript;
+      }
+      setTranscript(current);
+      handleParseText(current);
+    };
+
+    recog.onend = () => setIsListening(false);
+    recog.onerror = () => setIsListening(false);
+
+    recognitionRef.current = recog;
+  }, [selectedLang]);
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setTranscript('');
+      setAmount('');
+      setCategory('food');
+      setPaymentMethod('cash');
+      setDescription('');
+      setDate(new Date().toISOString().split('T')[0]);
+      setIsListening(false);
+    }
+  }, [isOpen]);
 
   const handleParseText = (text: string) => {
     if (!text.trim()) return;
@@ -73,24 +89,24 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
   };
 
   const toggleListening = () => {
-    if (!recognition) return;
+    const recog = recognitionRef.current;
+    if (!recog) {
+      alert('Speech recognition is not supported in this browser. Try Chrome or Edge.');
+      return;
+    }
     if (isListening) {
-      recognition.stop();
+      recog.stop();
       setIsListening(false);
     } else {
       setTranscript('');
       try {
-        recognition.start();
+        recog.lang = selectedLang;
+        recog.start();
         setIsListening(true);
       } catch (err) {
         console.error(err);
       }
     }
-  };
-
-  const handlePromptClick = (text: string) => {
-    setTranscript(text);
-    handleParseText(text);
   };
 
   const handleSave = () => {
@@ -123,27 +139,52 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
           {/* Close */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 p-1 rounded-full border-2 border-[#2d2d2d] bg-white hover:bg-[#ff4d4d] hover:text-white"
+            className="absolute top-3 right-3 p-1 border-2 border-[#2d2d2d] bg-white hover:bg-[#ff4d4d] hover:text-white cursor-pointer"
+            style={{ borderRadius: 0 }}
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="text-center mb-4">
+          {/* Title */}
+          <div className="text-center mb-3">
             <h2 className="text-2xl font-extrabold text-[#2d2d2d] font-heading">
               🎤 Voice Add Expense
             </h2>
             <p className="text-sm font-body text-[#2d2d2d]/80">
-              Speak or pick a sample prompt to auto-fill
+              Tap the mic and speak in your language
             </p>
           </div>
 
+          {/* Language Selector */}
+          <div className="mb-3">
+            <label className="font-heading font-bold text-base text-[#2d2d2d] block mb-1">
+              🌐 Speak in Language
+            </label>
+            <select
+              value={selectedLang}
+              onChange={(e) => {
+                setSelectedLang(e.target.value);
+                setIsListening(false);
+              }}
+              className="w-full bg-white text-[#2d2d2d] font-body text-base border-[2px] border-[#2d2d2d] px-3 py-2 outline-none cursor-pointer"
+              style={{ borderRadius: 0 }}
+            >
+              {INDIAN_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Mic Record Button */}
-          <div className="flex flex-col items-center justify-center my-3">
+          <div className="flex flex-col items-center justify-center my-4">
             <button
               onClick={toggleListening}
-              className={`w-16 h-16 rounded-full border-3 border-[#2d2d2d] flex items-center justify-center text-white shadow-hand cursor-pointer ${
+              className={`w-16 h-16 border-[3px] border-[#2d2d2d] flex items-center justify-center text-white shadow-hand cursor-pointer ${
                 isListening ? 'bg-[#ff4d4d]' : 'bg-[#2d5da1]'
               }`}
+              style={{ borderRadius: 0 }}
             >
               {isListening ? <Mic className="w-8 h-8" /> : <MicOff className="w-8 h-8" />}
             </button>
@@ -154,34 +195,16 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
 
           {/* Transcribed Text */}
           {transcript && (
-            <div className="bg-white border-2 border-[#2d2d2d] p-2.5 rounded-lg my-2 text-sm italic font-body">
+            <div className="bg-white border-2 border-[#2d2d2d] p-2.5 my-2 text-sm italic font-body">
               "{transcript}"
             </div>
           )}
 
-          {/* Sample Prompts */}
-          <div className="mb-3">
-            <span className="text-xs font-heading font-bold text-[#2d2d2d]/70 flex items-center gap-1 mb-1">
-              <Volume2 className="w-3.5 h-3.5" /> Sample voice prompts:
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {SAMPLE_PROMPTS.map((p, i) => (
-                <button
-                  key={i}
-                  onClick={() => handlePromptClick(p)}
-                  className="text-xs font-body px-2 py-0.5 bg-white hover:bg-[#2d5da1] hover:text-white border border-[#2d2d2d] rounded cursor-pointer"
-                >
-                  "{p}"
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Structured Fields */}
-          <div className="space-y-3 bg-white p-3 border-2 border-[#2d2d2d] wobbly-1 mt-2">
+          <div className="space-y-3 bg-white p-3 border-2 border-[#2d2d2d] mt-3">
             <div className="grid grid-cols-2 gap-2">
               <WobblyInput
-                label="Amount ($)"
+                label="Amount (₹/$)"
                 type="number"
                 step="0.01"
                 required
@@ -207,11 +230,11 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
                 options={[
-                  { value: 'cash', label: '💵 Cash Spent' },
+                  { value: 'cash', label: '💵 Cash / Nakit' },
+                  { value: 'upi', label: '📱 UPI / GPay / Paytm' },
                   { value: 'credit_card', label: '💳 Credit Card' },
-                  { value: 'debit_card', label: '💳 Debit Card' },
-                  { value: 'upi', label: '📱 UPI' },
-                  { value: 'online', label: '🌐 Online' },
+                  { value: 'debit_card', label: '💳 Debit / ATM' },
+                  { value: 'online', label: '🌐 Net Banking' },
                 ]}
               />
 
@@ -224,10 +247,10 @@ export const VoiceLoggerModal: React.FC<VoiceLoggerModalProps> = ({
             </div>
 
             <WobblyTextArea
-              label="Description (What in detail)"
+              label="Description / Vivaran"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="e.g. Spent cash on organic milk, eggs & bread"
+              placeholder="What was bought? (e.g. Petrol bhara, sabzi li, restaurant mein khana)"
             />
           </div>
 

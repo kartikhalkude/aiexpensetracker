@@ -11,6 +11,7 @@ export const TapeStrip: React.FC<{ className?: string; color?: string }> = ({
       border: '1px dashed rgba(45, 45, 45, 0.2)',
       boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       transform: 'rotate(-2deg)',
+      borderRadius: 0,
     }}
   />
 );
@@ -21,10 +22,10 @@ export const ThumbTack: React.FC<{ className?: string; color?: string }> = ({
 }) => (
   <div className={`absolute z-20 pointer-events-none flex items-center justify-center ${className}`}>
     <div
-      className="w-5 h-5 rounded-full border-2 border-[#2d2d2d] shadow-sm flex items-center justify-center"
-      style={{ backgroundColor: color }}
+      className="w-5 h-5 border-2 border-[#2d2d2d] shadow-sm flex items-center justify-center"
+      style={{ backgroundColor: color, borderRadius: 0 }}
     >
-      <div className="w-1.5 h-1.5 rounded-full bg-white opacity-80" />
+      <div className="w-1.5 h-1.5 bg-white opacity-80" />
     </div>
   </div>
 );
@@ -95,8 +96,8 @@ export const StickyTag: React.FC<{
   className?: string;
 }> = ({ text, color = '#fff9c4', className = '' }) => (
   <span
-    className={`inline-block px-2.5 py-1 text-xs font-bold border-2 border-[#2d2d2d] shadow-hand-sm transform -rotate-1 font-heading ${className}`}
-    style={{ backgroundColor: color, borderRadius: '15px 5px 15px 5px / 5px 15px 5px 15px' }}
+    className={`inline-block px-2.5 py-1 text-xs font-bold border-2 border-[#2d2d2d] shadow-hand-sm font-heading ${className}`}
+    style={{ backgroundColor: color, borderRadius: 0 }}
   >
     {text}
   </span>

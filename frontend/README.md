@@ -1,75 +1,45 @@
-# React + TypeScript + Vite
+# PaperSpend ✏️ — Voice & Manual Expense Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple, fast, hand-drawn style expense tracker that works entirely in your browser. Log expenses by voice or manually. All data is stored locally — no account or backend required.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 🎤 **Voice Add** — Speak an expense and the app auto-extracts amount, category, and payment method
+- ➕ **Manual Add** — Fill in amount, category, cash/card, date, and detailed description
+- 🛒 Categories: Food, Grocery, Petrol, Bills, Shopping, Health, Income, Other
+- 💵 Cash Spent tracker + Total Spent summary
+- 🔍 Search & filter by category
+- 📥 Export to CSV
+- 💾 All data stored in browser LocalStorage (no login needed)
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React 19** + **TypeScript 6**
+- **Vite 8** (bundler)
+- **Tailwind CSS v4** via `@tailwindcss/vite`
+- **lucide-react** (icons)
+- **Web Speech API** (voice recognition — browser native)
 
-## Expanding the ESLint configuration
+## Local Development
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Production Build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cd frontend
+npm run build
+# Output is in frontend/dist/
 ```
+
+## Deploy
+
+The `frontend/dist/` folder is a fully static site. Deploy it to any static host:
+
+- **Vercel**: Connect your GitHub repo, set root to `frontend`, build command `npm run build`, output dir `dist`
+- **Netlify**: Same as above — root `frontend`, build command `npm run build`, publish dir `dist`
+- **GitHub Pages**: Run `npm run build`, push the `dist/` contents to your `gh-pages` branch
